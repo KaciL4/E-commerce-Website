@@ -10,7 +10,7 @@ const TAX_RATE = 0.10;
 
 // Re-defining cookie helpers here for completeness if they are not in a shared utility file
 function readCookie(name) {
-    // ... (Your implementation of readCookie) ...
+
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(";").shift();
@@ -18,7 +18,7 @@ function readCookie(name) {
 }
 
 function writeCookie(name, value, days) {
-    // ... (Your implementation of writeCookie) ...
+
     let expires = "";
     if (days) {
         const date = new Date();
@@ -29,7 +29,7 @@ function writeCookie(name, value, days) {
 }
 
 function getCart() {
-    // ... (Your existing getCart logic) ...
+
     const raw = readCookie(CART_COOKIE);
     if (!raw) return [];
     try {
@@ -48,138 +48,287 @@ function saveCart(cart) {
 function cartTotals(cart) {
     let subtotal = 0;
     cart.forEach(item => {
-        const product = getProductById(item.id);
-        if (product) {
-            subtotal += product.price * item.qty;
+        const p = getProductById(item.id);
+        if (p&& product.price) {
+            subtotal += p.price * item.qty;
         }
     });
     const tax = subtotal * TAX_RATE;
     const total = subtotal + tax;
-    return { subtotal, tax, total };
+    return { subtotal:subtotal,
+             tax:tax,
+             tota: total 
+    };
 }
+//Event handler to change items quantity
+function handleQuantityChange(){
+    const id =$(this).data("product-id");
+    let newQty = parseInt($(this).val(),10)||1;
+    newQty = Math.max(1,newQty);// enesure quantity is at least 1
+    $(this).val(newQty);
 
-function updateCartCountBadge() {
-    // ... (Your existing updateCartCountBadge logic) ...
     const cart = getCart();
-    const count = cart.reduce((sum, item) => sum + item.qty, 0);
-    $("#cart-count").text(count);
+    const itemIndex= cart.findIndex(item=>item.id==id);
+
+    if(itemIndex> -1){
+        cart[itemIndex].qty = newQty;
+        saveCart(cart);
+        renderCart();
+    }
+}
+function addToCart(productId, quantity = 1) {
+    let cart = getCart();
+    const existing = cart.find(item => item.id == productId);
+    const product = getProductById(id);
+    if(!product){
+        console.error('Product with ID ${id} not found.');
+        return;
+    }
+    if (existing) {
+        existing.qty += quantity;
+    } else {
+        cart.push({ productId: productId, qty: quantity });
+    }
+    cart =cart.filter(item=>item.qty>0); 
+    saveCart(cart);
 }
 
-// -------------------------------------------------------------
-// CART MANAGEMENT FUNCTIONS
-// -------------------------------------------------------------
-
-function addToCart(productId, quantity = 1) {
-    const product = getProductById(productId);
-    if (!product) return;
-
-    let cart = getCart();
-    const existingItem = cart.find(item => item.id === productId);
-
-    if (existingItem) {
-        existingItem.qty += quantity;
-    } else {
-        cart.push({ id: productId, qty: quantity });
+function updateCartItemQuantity(productId, quantity) {
+    const cart = getCart();
+    const item = cart.find(i => i.id === productId);
+    if (item) {
+        item.qty = quantity;
+        if (item.qty <= 0) {
+            saveCart(cart.filter(i => i.id !== productId));
+        } else {
+            saveCart(cart);
+        }
     }
-    saveCart(cart);
 }
 
 function removeFromCart(productId) {
-    let cart = getCart();
-    cart = cart.filter(item => item.id !== productId);
+    const cart = getCart();
+    saveCart(cart.filter(i => i.id !== productId));
     saveCart(cart);
-    initCartPage(); // Re-render the page after removal
-}
-
-function updateQuantity(productId, newQty) {
-    const qty = parseInt(newQty, 10);
-    if (isNaN(qty) || qty < 1) return;
-
-    let cart = getCart();
-    const item = cart.find(i => i.id === productId);
-    if (item) {
-        item.qty = qty;
+    if($("#cart-section").length){
+        renderCart(cart);
     }
-    saveCart(cart);
-    initCartPage(); // Re-render the page to update totals
 }
-
-// -------------------------------------------------------------
-// PAGE INITIALIZATION
-// -------------------------------------------------------------
-
-function initCartPage() {
-    const cartContainer = $("#cart-items-container");
-    const totalsContainer = $("#cart-totals");
-    if (cartContainer.length === 0 || totalsContainer.length === 0) return;
-
-    if (!isDataLoaded) {
-        // Defer rendering until products are loaded
-        loadProducts(initCartPage);
+//Event handler to remove an items from the cart
+function handleRemoveItem(){
+    const id=$(this).data("product-id");
+    const cart = getCart();
+    const newCart= cart.filter(item=>item.id!=id);
+    saveCart(newCart);
+    renderCart();
+}
+function updateQuantity(id, newQty){
+    let cart = getCart();
+    const existingItem = cart.find(item=>item.id==id);
+    const qty =parseInt(newQty,10);
+    if(existingItem&& qty>=1){
+        removeFromCart(id);
         return;
     }
-
-    const cart = getCart();
-    cartContainer.empty();
+    if($('#cart-section').length){
+        renderCart(getCart());
+    }
+}
+//Calculates subtotal, tax and total
+function cartTotal(cart){
+    let subtotal = 0;
+    cart.forEach(item=>{
+        const product = getProductById(item.id);
+        if (product){
+            subtotal += product.price*item.qty;
+        }
+    });
+    const tax =subtotal*TAX_RATE;
+    const total = subtotal+tax;
+    return {subtotal,tax,total};
+}
+function renderCart(cart) {
+    const cartItemsContainer = $("#cart-items-list");
+    const cartSummaryContainer = $("#cart-summary-totals");
+    cartItemsContainer.empty();
+    cartSummaryContainer.empty();
 
     if (cart.length === 0) {
-        cartContainer.html("<p>Your shopping cart is empty.</p>");
-        totalsContainer.html("");
+        cartItemsContainer.html("<p class=\"empty-cart-message\">Your cart is empty.</p>");
+        cartSummaryContainer.html(`
+            <p>Subtotal: $0.00</p>
+            <p>Tax (10%): $0.00</p>
+            <p class="cart-total-line">Total: <span>$0.00</span></p>
+        `);
+        $("#cart-checkout-btn").prop('disabled', true);
         return;
     }
 
-    // A. Render Cart Items
+    // Render Items
     cart.forEach(cartItem => {
-        const p = getProductById(cartItem.id);
-        if (!p) return;
+        const product = getProductById(cartItem.id);
+        if (!product) return; // Skip if product data couldn't be found
+        
+        const priceFormatted = product.price.toFixed(2);
+        const subtotalFormatted = (product.price * cartItem.qty).toFixed(2);
 
-        cartContainer.append(`
-            <div class="cart-item">
-                <img src="${p.image}" alt="${p.title}">
-                <div class="item-details">
-                    <a href="product.html?id=${p.id}"><strong>${p.title}</strong></a>
-                    <p class="category">${p.categoryName}</p>
-                    <p class="price">$${p.price.toFixed(2)}</p>
+        cartItemsContainer.append(`
+            <li class="cart-item" data-product-id="${product.id}">
+                <div class="cart-image">
+                    <img src="${product.image}" alt="${product.title}">
                 </div>
-                <div class="item-quantity">
-                    <input type="number" min="1" value="${cartItem.qty}" 
-                           data-id="${p.id}" class="quantity-input">
+                <div class="cart-details">
+                    <a href="product.html?id=${product.id}" class="cart-title">${product.title}</a>
+                    <p class="cart-price">$${priceFormatted}</p>
                 </div>
-                <div class="item-subtotal">
-                    $${(p.price * cartItem.qty).toFixed(2)}
+                <div class="cart-quantity">
+                    <input type="number" 
+                           min="1" 
+                           value="${cartItem.qty}" 
+                           class="cart-qty-input" 
+                           data-product-id="${product.id}">
                 </div>
-                <button class="btn btn-small remove-item" data-id="${p.id}">Remove</button>
-            </div>
+                <div class="cart-subtotal">
+                    $${subtotalFormatted}
+                </div>
+                <div class="cart-actions">
+                    <button class="btn secondary cart-remove-btn" data-product-id="${product.id}">Remove</button>
+                </div>
+            </li>
         `);
     });
 
-    // B. Render Totals
+    // Render Totals
     const totals = cartTotals(cart);
-    totalsContainer.html(`
-        <p>Subtotal: <span>$${totals.subtotal.toFixed(2)}</span></p>
-        <p>Tax (${(TAX_RATE * 100).toFixed(0)}%): <span>$${totals.tax.toFixed(2)}</span></p>
-        <p class="total-price">Total: <span>$${totals.total.toFixed(2)}</span></p>
-        <a href="checkout.html" class="btn primary btn-full">Proceed to Checkout</a>
+    cartSummaryContainer.html(`
+        <p>Subtotal: $${totals.subtotal.toFixed(2)}</p>
+        <p>Tax (${(TAX_RATE * 100).toFixed(0)}%): $${totals.tax.toFixed(2)}</p>
+        <p class="cart-total-line">Total: <span>$${totals.total.toFixed(2)}</span></p>
     `);
+    $("#cart-checkout-btn").prop('disabled', false);
 
-    // C. Attach Event Listeners
-    cartContainer.find(".remove-item").on("click", function() {
-        const id = parseInt($(this).data("id"), 10);
+    // 3. Attach Event Handlers
+    $(".cart-remove-btn").on("click", function() {
+        const id = $(this).data("product-id");
         removeFromCart(id);
     });
-    cartContainer.find(".quantity-input").on("change", function() {
-        const id = parseInt($(this).data("id"), 10);
-        const qty = parseInt($(this).val(), 10);
+
+    $(".cart-qty-input").on("change", function() {
+        const id = $(this).data("product-id");
+        const qty = $(this).val();
         updateQuantity(id, qty);
     });
 }
+// =========================================================
+// PAGE INITIALIZATION FUNCTIONS
+// =========================================================
 
-// Your existing initCheckoutPage() and initConfirmationPage() logic goes here...
-// They are mostly complete in your original snippet, but ensure they use getCart() and cartTotals()
+function initCartPage() {
+    // ensure product data is loaded before rendering the cart
+    if (typeof loadProducts !== 'function') {
+        console.error("loadProducts is required but not defined. Ensure products.js is loaded correctly.");
+        return;
+    }
+    
+    // Call loadProducts and run the cart logic inside its callback
+    loadProducts(function() {
+        const section = $("#cart-section");
+        if (section.length === 0) return;
 
-$(document).ready(function() {
-    updateCartCountBadge();
+        // REDIRECT UNLOGGED-IN USERS TO LOGIN PAGE
+        if (!isLoggedIn()) {
+            alert("You must be logged in to view your cart.");
+            // Added redirect parameter for better UX
+            window.location.href = "login.html?redirect=cart.html"; 
+            return; // Halt execution
+        }
+        
+        const cart = getCart();
+        renderCart(cart); // Now calls the new function
+        updateCartCountBadge();
+
+        $("#cart-checkout-btn").on("click",function(e){
+            e.preventDefault();
+            if (isLoggedIn()){
+            }else{
+                window.location.href = "login.html?redirect=checkout.html";
+            }
+        });
+    });
+}
+function initCheckoutPage() {
+    const section = $("#checkout-section");
+    if (section.length === 0) return;
+
+    // REDIRECT UNLOGGED-IN USERS TO LOGIN PAGE (Recommended security measure)
+    if (!isLoggedIn()) {
+        alert("You must be logged in to proceed to checkout.");
+        window.location.href = "login.html"; 
+        return; // Halt execution
+    }
+
+    const cart = getCart();
+    if (cart.length === 0) {
+        section.html("<h2>Checkout</h2><p>Your cart is empty. Please add items before checking out.</p><a href='products.html' class='btn primary'>Continue Shopping</a>");
+        return;
+    }
+
+    renderCheckoutSummary(cart);
+
+    $("#checkout-form").on("submit", function (e) {
+        e.preventDefault();
+
+        // Simple client-side validation
+        const name = $("#checkout-name").val().trim();
+        const email = $("#checkout-email").val().trim();
+        const phone = $("#checkout-phone").val().trim();
+        const address = $("#checkout-address").val().trim();
+        const city = $("#checkout-city").val().trim();
+        const postal = $("#checkout-postal").val().trim();
+
+        if (!name || !email || !phone || !address || !city || !postal) {
+            alert("Please fill out all required fields.");
+            return;
+        }
+
+        const totals = cartTotals(cart);
+        const order = {
+            orderNumber: "ORD-" + Math.floor(Math.random() * 900000 + 100000),
+            total: totals.total,
+            items: cart
+        };
+        sessionStorage.setItem("myshop_last_order", JSON.stringify(order));
+        saveCart([]);
+        window.location.href = "confirmation.html";
+    });
+}
+
+function initConfirmationPage() {
+    const section = $("#confirmation-section");
+    if (section.length === 0) return;
+
+    const raw = sessionStorage.getItem("myshop_last_order");
+    if (!raw) {
+        section.html("<p>No recent order found.</p>");
+        return;
+    }
+    const order = JSON.parse(raw);
+    $("#order-number").text(order.orderNumber);
+    $("#confirmation-total").text(order.total.toFixed(2));
+
+    const itemsContainer = $("#confirmation-items");
+    itemsContainer.empty();
+    order.items.forEach(ci => {
+        const p = getProductById(ci.id);
+        if (!p) return;
+        itemsContainer.append(
+            `<p>${p.title} × ${ci.qty} - $${(p.price * ci.qty).toFixed(2)}</p>`
+        );
+    });
+}
+
+$(document).ready(function () {
     initCartPage();
-     initCheckoutPage(); // Only runs if elements exist
-    initConfirmationPage(); // Only runs if elements exist
+    initCheckoutPage();
+    initConfirmationPage();
 });

@@ -96,7 +96,8 @@ function loadProducts(callback) {
 }
 
 function getProductById(id) {
-    return allProducts.find(p => String(p.id) === String(id));
+    const searchId = parseInt(id,10);
+    return allProducts.find(p => p.id ===searchId);
 }
 
 function getReviewsForProduct(id) {

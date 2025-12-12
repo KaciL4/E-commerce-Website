@@ -34,24 +34,35 @@
         <a href="about.html">Customer Service</a>
     </nav>
 </header>
-<main class="main-content container">
-    <h1>Your Shopping Cart</h1>
-    
-    <div class="cart-layout">
-        <section class="cart-items">
-            <h2>Items</h2>
-            <div id="cart-items-container" class="cart-items-container">
-                <p>Loading cart...</p>
+<main class="page-cart">
+        <section id="cart-section" class="main-content">
+        <h2>Your Shopping Cart</h2>
+
+        <div class="cart-layout">
+            <div class="cart-items">
+                <div class="cart-item-header">
+                    <p>Product</p>
+                    <p>Price</p>
+                    <p>Quantity</p>
+                    <p>Subtotal</p>
+                    <p>Actions</p>
+                </div>
+                <ul id="cart-items-list" class="cart-items-list">
+                    </ul>
             </div>
-        </section>
-        
-        <aside class="cart-summary">
-            <h2>Order Summary</h2>
-            <div class="cart-totals-box" id="cart-totals">
-                <p>Loading totals...</p>
-            </div>
-        </aside>
-    </div>
+
+            <aside class="cart-summary">
+                <h3>Order Summary</h3>
+                <div id="cart-summary-totals" class="cart-summary-totals">
+                    </div>
+                
+                 <a href="checkout.html" class="btn primary checkout-button"id ="checkout-btn" arial-disabled="true">
+                Proceed to checkout
+                </a>
+                <a href="products.html" class="btn secondary full-width">Continue Shopping</a>
+            </aside>
+        </div>
+    </section>
 </main>
 <footer class="site-footer">
     <!-- Global site footer: category links, contact info, newsletter, and social icons -->
