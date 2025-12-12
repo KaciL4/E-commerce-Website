@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MyShop - Products</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+    <!-- PAGE PURPOSE: Products page for MyShop demo eCommerce site -->
+
+<header class="site-header">
+    <div class="logo"><a href="index.html"><span>my</span><span>Shop</span></a></div>
+    <div class="search-wrapper">
+        <input type="text" id="search-input" placeholder="Search products..." aria-label="Search products">
+        <div id="search-suggestions" class="search-suggestions" aria-live="polite"></div>
+    </div>
+    <div class="header-right">
+        <button id="dark-mode-toggle" class="icon-button" aria-label="Toggle dark mode">🌓</button>
+        <a href="cart.html" class="icon-button cart-link" aria-label="View cart">
+            <span>Cart</span> 🛒 <span id="cart-count">0</span>
+        </a>
+        <a href="login.html" class="icon-button" id="account-link">👤</a>
+    </div>
+    <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="products.html">All Products</a>
+        <a href="about.html">Customer Service</a>
+    </nav>
+</header>
+<main>
+
+<nav class="breadcrumbs" id="breadcrumbs" aria-label="Breadcrumb"></nav>
+
+<section class="page-header">
+    <h1>All Products</h1>
+    <p id="product-results-info"></p>
+</section>
+
+<section class="filters">
+    <div>
+        <label for="category-filter">Category:</label>
+        <select id="category-filter">
+            <option value="">All</option>
+        </select>
+    </div>
+    <div>
+        <label for="price-range">Max price: <span id="price-range-value"></span>$</label>
+        <input type="range" id="price-range" min="0" max="1000" value="1000">
+    </div>
+    <div>
+        <label for="sort-select">Sort by:</label>
+        <select id="sort-select">
+            <option value="">Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+        </select>
+    </div>
+</section>
+
+<section>
+    <div class="product-grid" id="product-list"></div>
+    <div class="pagination" id="pagination"></div>
+</section>
+
+</main>
+<footer class="site-footer">
+    <!-- Global site footer: category links, contact info, newsletter, and social icons -->
+    <div class="footer-cols">
+        <div>
+            <h4>Get to Know Us</h4>
+            <ul>
+                <li><a href="about.html">About</a></li>
+                <li><a href="about.html">Contact</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4>Shop by Department</h4>
+            <ul>
+                <li><a href="products.html?category=electronics">Electronics</a></li>
+                <li><a href="products.html?category=home-kitchen">Home &amp; Kitchen</a></li>
+                <li><a href="products.html?category=sports-outdoors">Sports &amp; Outdoors</a></li>
+            </ul>
+        </div>
+    <div>
+            <h4>Stay in the Loop</h4>
+            <!-- Newsletter signup (front-end only; no real backend) -->
+            <form class="newsletter-form">
+                <label for="newsletter-email">Newsletter</label><br>
+                <input type="email" id="newsletter-email" placeholder="Enter your email">
+                <a href="register.html">
+                    <button type="button" class="btn secondary">Sign up</button>
+                </a>
+            </form>
+        </div>
+        <div>
+            <h4>Connect with Us</h4>
+            <!-- Simple social media icons (static links) -->
+            <p class="social-icons" aria-label="Social media links">
+                <a href="#" aria-label="Visit our Facebook page">📘</a>
+                <a href="#" aria-label="Visit our Instagram profile">📸</a>
+                <a href="#" aria-label="Visit our Twitter profile">🐦</a>
+            </p>
+            <p>Questions? info@myshop.test</p>
+        </div>
+    </div>
+    <p class="footer-bottom">&copy; <span id="year"></span> MyShop Demo. All rights reserved.</p>
+</footer>
+    <script src="js/ui.js" defer></script>
+    <script src="js/products.js" defer></script>
+    <script src="js/cart.js" defer></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/search.js" defer></script>
+</body>
+</html>
