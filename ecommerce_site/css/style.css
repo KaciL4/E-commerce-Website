@@ -184,7 +184,6 @@ button {
 }
 
 #account-link::before {
-    content: "Hello, sign in";
     font-size: 0.7rem;
     opacity: 0.8;
 }
