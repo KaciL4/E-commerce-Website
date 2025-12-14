@@ -10,9 +10,12 @@ html { scroll-behavior: smooth; }
     --header-bg: #131921;
     --header-sub-bg: #232f3e;
     --border: #d5d9d9;
+    --text-muted: #555555;
+
 }
 
 body.dark {
+    --text-muted: #cfcfcf;
     --bg: #0f1111;
     --bg-alt: #111319;
     --text: #f5f5f5;
@@ -280,7 +283,7 @@ main {
 }
 
 .hero-banner {
-    background: #ffffff;
+    background: var(--bg-alt);
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(15, 17, 17, 0.15);
 }
@@ -317,7 +320,7 @@ main {
 
 .category-card,
 .product-card {
-    background: #ffffff;
+    background: var(--bg-alt);
     border-radius: 4px;
     padding: 0.75rem;
     box-shadow: 0 2px 4px rgba(15, 17, 17, 0.15);
@@ -357,7 +360,7 @@ main {
     gap: 0.75rem;
     margin: 0.8rem 0 1rem;
     padding: 0.75rem;
-    background: #ffffff;
+    background: var(--bg-alt);
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(15, 17, 17, 0.15);
     font-size: 0.9rem;
@@ -378,7 +381,7 @@ main {
     padding: 0.25rem 0.55rem;
     border-radius: 4px;
     border: 1px solid #d5d9d9;
-    background: #ffffff;
+    background: var(--bg-alt);
     cursor: pointer;
     font-size: 0.85rem;
 }
@@ -393,7 +396,7 @@ main {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
     gap: 1.5rem;
-    background: #ffffff;
+    background: var(--bg-alt);
     border-radius: 4px;
     padding: 1rem;
     box-shadow: 0 2px 4px rgba(15, 17, 17, 0.15);
@@ -438,7 +441,7 @@ main {
 }
 
 .review-card {
-    background: #ffffff;
+    background: var(--bg-alt);
     border-radius: 4px;
     padding: 0.6rem;
     margin-bottom: 0.4rem;
@@ -458,7 +461,7 @@ main {
     gap: 0.75rem;
     padding: 0.75rem;
     margin-bottom: 0.6rem;
-    background: #ffffff;
+    background: var(--bg-alt);
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(15, 17, 17, 0.15);
 }
@@ -472,7 +475,7 @@ main {
 }
 
 .cart-summary {
-    background: #ffffff;
+    background: var(--bg-alt);
     border-radius: 4px;
     padding: 0.9rem;
     box-shadow: 0 1px 3px rgba(15, 17, 17, 0.15);
@@ -495,7 +498,7 @@ main {
     border-radius: 4px;
     padding: 0.75rem;
     margin-bottom: 0.75rem;
-    background: #ffffff;
+    background: var(--bg-alt);
 }
 
 .checkout-form legend {
@@ -521,7 +524,7 @@ main {
 .auth-page {
     max-width: 360px;
     margin: 1.5rem auto;
-    background: #ffffff;
+    background: var(--bg-alt);
     padding: 1.25rem;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(15, 17, 17, 0.15);
@@ -562,7 +565,7 @@ main {
     display: flex;
     gap: 0.75rem;
     align-items: center;
-    background: #ffffff;
+    background: var(--bg-alt);
     border-radius: 4px;
     padding: 0.9rem;
     box-shadow: 0 1px 3px rgba(15, 17, 17, 0.15);
@@ -588,7 +591,7 @@ main {
 .confirmation {
     max-width: 600px;
     margin: 1.5rem auto;
-    background: #ffffff;
+    background: var(--bg-alt);
     border-radius: 4px;
     padding: 1.25rem;
     box-shadow: 0 1px 3px rgba(15, 17, 17, 0.15);
@@ -726,7 +729,7 @@ main {
 
 .newsletter-note {
     font-size: 0.7rem;
-    opacity: 0.8;
+    color: var(--text-muted);
 }
 
 .footer-social a {
@@ -753,4 +756,9 @@ main {
 #checkout-total,.summary-total {
     font-weight: bold;
     font-size: 16pt;
+}
+
+body.dark .hero-content {
+    background: linear-gradient(135deg, #1a1d24, #111319);
+    color: var(--text);
 }

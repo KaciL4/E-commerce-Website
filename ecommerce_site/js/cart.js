@@ -208,7 +208,8 @@ function renderCart(cart) {
     $(".cart-qty-input").on("change", function() {
         const id = $(this).data("product-id");
         const qty = $(this).val();
-        updateQuantity(id, qty);
+        updateCartItemQuantity(id, qty);
+        renderCart(getCart());
     });
 }
 // Helper function to render product list on checkout page (using correct ID)
