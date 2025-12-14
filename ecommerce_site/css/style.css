@@ -751,3 +751,7 @@ main {
 .hero-slide.active {
     opacity: 1;
 }
+#checkout-total,.summary-total {
+    font-weight: bold;
+    font-size: 16pt;
+}

@@ -191,6 +191,39 @@ function renderCart(cart) {
         updateQuantity(id, qty);
     });
 }
+// Helper function to render product list on checkout page (using correct ID)
+function renderCheckoutSummaryItems(cart) {
+    const itemsContainer = $("#checkout-cart-items"); // Targets the user's HTML ID
+    if (itemsContainer.length === 0) return;
+    itemsContainer.empty();
+
+    cart.forEach(cartItem => {
+        const product = getProductById(cartItem.id);
+        if (!product) return;
+        
+        const itemTotal = (product.price * cartItem.qty).toFixed(2);
+        
+        itemsContainer.append(`
+            <p class="summary-item">
+                ${product.title} x ${cartItem.qty} 
+                <span class="summary-item-price">$${itemTotal}</span>
+            </p>
+        `);
+    });
+}
+
+// Function to render the totals and summary on the checkout page (using correct IDs)
+function renderCheckoutSummary(cart) {
+    const totals = cartTotals(cart);
+
+    // Render the list of products
+    renderCheckoutSummaryItems(cart);
+    
+    // Renders the totals to the correct IDs
+    $("#checkout-subtotal").text(`${totals.subtotal.toFixed(2)}`);
+    $("#checkout-tax").text(`${totals.tax.toFixed(2)}`);
+    $("#checkout-total").text(`${totals.total.toFixed(2)}`);
+}
 // =========================================================
 // PAGE INITIALIZATION FUNCTIONS
 // =========================================================
@@ -230,7 +263,7 @@ function initCartPage() {
     });
 }
 function initCheckoutPage() {
-    const section = $("#checkout-section");
+    const section = $("#checkout-page");
     if (section.length === 0) return;
 
     // REDIRECT UNLOGGED-IN USERS TO LOGIN PAGE (Recommended security measure)
@@ -246,7 +279,15 @@ function initCheckoutPage() {
         return;
     }
 
-    renderCheckoutSummary(cart);
+    // Load products data before attempting to calculate/render totals
+    if (typeof loadProducts === 'function') {
+        loadProducts(function() {
+            renderCheckoutSummary(cart);
+        });
+    } else {
+        // Fallback if products.js is not loaded
+        console.error("loadProducts is not defined. Cannot render accurate checkout summary.");
+    }
 
     $("#checkout-form").on("submit", function (e) {
         e.preventDefault();
@@ -291,13 +332,18 @@ function initConfirmationPage() {
 
     const itemsContainer = $("#confirmation-items");
     itemsContainer.empty();
-    order.items.forEach(ci => {
-        const p = getProductById(ci.id);
-        if (!p) return;
-        itemsContainer.append(
-            `<p>${p.title} × ${ci.qty} - $${(p.price * ci.qty).toFixed(2)}</p>`
-        );
-    });
+    // NOTE: loadProducts is assumed to be defined in products.js
+    if (typeof loadProducts === 'function') {
+        loadProducts(function() {
+            order.items.forEach(ci => {
+                const p = getProductById(ci.id);
+                if (!p) return;
+                itemsContainer.append(
+                    `<p>${p.title} × ${ci.qty} - $${(p.price * ci.qty).toFixed(2)}</p>`
+                );
+            });
+        });
+    }
 }
 
 $(document).ready(function () {
